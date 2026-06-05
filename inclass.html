@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing Practice: Someone I Admire (with Mind Map & Google Sheets)</title>
+    <style>
+        :root {
+            --bg: #f5f0eb;
+            --card-bg: #ffffff;
+            --primary: #4a6fa5;
+            --primary-light: #e8eff8;
+            --success: #2d9d6f;
+            --warning: #e4a03b;
+            --danger: #c94b4b;
+            --text: #2c3e50;
+            --text-light: #5a6c7d;
+            --border: #e0d9d0;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+            --radius: 16px;
+            --transition: 0.25s ease;
+            --font-heading: 'Georgia', 'Times New Roman', serif;
+            --font-body: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: var(--font-body);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, #e8e0d8 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, #dce6f2 0%, transparent 60%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Header Card */
+        .header-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .header-card .icon-row {
+            font-size: 2.4rem;
+            margin-bottom: 6px;
+        }
+        .header-card h1 {
+            font-family: var(--font-heading);
+            font-size: 1.9rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+        .header-card .topic-tag {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.05rem;
+            padding: 7px 20px;
+            border-radius: 30px;
+            margin-top: 6px;
+            letter-spacing: 0.2px;
+        }
+
+        /* Collapsible Mind Map Section */
+        .mindmap-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .mindmap-header {
+            background: #f8f7f4;
+            padding: 14px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text);
+            user-select: none;
+        }
+        .mindmap-header:hover {
+            background: #f0ede8;
+        }
+        .mindmap-header .arrow {
+            transition: transform 0.3s;
+            font-size: 1.2rem;
+        }
+        .mindmap-card.collapsed .arrow {
+            transform: rotate(-90deg);
+        }
+        .mindmap-body {
+            padding: 20px 24px;
+            overflow-x: auto;
+            transition: max-height 0.3s ease;
+            max-height: 800px;
+        }
+        .mindmap-card.collapsed .mindmap-body {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
+        }
+
+        /* Tree Diagram Styles */
+        .tree {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-width: 600px;
+        }
+        .tree ul {
+            padding-top: 20px;
+            position: relative;
+            transition: all 0.3s;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .tree li {
+            float: left;
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 20px 5px 0 5px;
+        }
+        /* Lines */
+        .tree li::before, .tree li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            border-top: 2px solid #ccc;
+            width: 50%;
+            height: 20px;
+        }
+        .tree li::after {
+            right: auto;
+            left: 50%;
+            border-left: 2px solid #ccc;
+        }
+        .tree li:only-child::after, .tree li:only-child::before {
+            display: none;
+        }
+        .tree li:only-child {
+            padding-top: 0;
+        }
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+        .tree li:last-child::before {
+            border-right: 2px solid #ccc;
+            border-radius: 0 5px 0 0;
+        }
+        .tree li:first-child::after {
+            border-radius: 5px 0 0 0;
+        }
+        .tree ul ul::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            border-left: 2px solid #ccc;
+            width: 0;
+            height: 20px;
+        }
+        .tree-node {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f9f7f4;
+            border: 2px solid #d9d0c5;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin: 0 6px;
+            min-width: 90px;
+            position: relative;
+            /* Added shadow to each box */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .tree-node input {
+            border: none;
+            background: transparent;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-align: center;
+            width: 100px;
+            color: var(--text);
+            outline: none;
+        }
+        .tree-node input:focus {
+            background: #fff;
+            border-radius: 6px;
+            padding: 2px 4px;
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+        .node-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .node-btn {
+            background: var(--primary-light);
+            border: none;
+            color: var(--primary);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .node-btn:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+        .node-btn.remove-btn {
+            background: #fde8e8;
+            color: #a12b2b;
+        }
+        .node-btn.remove-btn:hover {
+            background: #c94b4b;
+            color: white;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        /* Writing Area Card */
+        .writing-card {
+            flex: 1 1 550px;
+            min-width: 300px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px 30px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .writing-card label {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: -10px;
+        }
+        .writing-card textarea {
+            width: 100%;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            color: var(--text);
+            background: #fafaf8;
+            resize: vertical;
+            transition: border-color var(--transition), box-shadow var(--transition);
+            outline: none;
+        }
+        .writing-card textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(74, 111, 165, 0.08);
+            background: #fff;
+        }
+        .writing-card textarea::placeholder {
+            color: #bfb8ae;
+            font-style: italic;
+        }
+        .outline-area {
+            min-height: 80px;
+            font-size: 0.9rem;
+        }
+        .paragraph-area {
+            min-height: 220px;
+            flex: 1;
+        }
+
+        .student-name-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .student-name-row input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            background: #fafaf8;
+        }
+
+        .word-count-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        .word-count-row span {
+            background: #f8f6f3;
+            padding: 6px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+        }
+        .word-count-row .count-num {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.05rem;
+        }
+
+        .highlight-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.8rem;
+            align-items: center;
+        }
+        .highlight-bar .tag {
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            font-size: 0.78rem;
+        }
+        .tag.adjective { background: #fef3e2; color: #b87a1e; border: 1px solid #f0d9a8; }
+        .tag.transition { background: #e2f0fc; color: #3a6894; border: 1px solid #c4daf0; }
+        .tag.topic-sentence { background: #e6f5ec; color: #1f6e43; border: 1px solid #b8ddc5; }
+        .tag.concluding { background: #f3e6f7; color: #6b3d7a; border: 1px solid #dcc5e6; }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            letter-spacing: 0.2px;
+            transition: all var(--transition);
+            border: none;
+            font-family: var(--font-body);
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #3c5d8c; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(74, 111, 165, 0.3); }
+        .btn-outline { background: #fff; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: var(--primary-light); }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { background: #22875a; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(45, 157, 111, 0.35); }
+        .btn-ghost { background: transparent; color: var(--text-light); border: 2px solid transparent; }
+        .btn-ghost:hover { background: #f5f3f0; border-color: var(--border); }
+
+        .feedback-toast {
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+            animation: fadeSlideIn 0.35s ease;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .feedback-toast.success { background: #d4f5e6; color: #1a5c38; display: block; }
+        .feedback-toast.info { background: #e2f0fc; color: #2c4f73; display: block; }
+        .feedback-toast.error { background: #fde8e8; color: #a12b2b; display: block; }
+
+        /* Checklist Card */
+        .checklist-card {
+            flex: 0 0 270px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px 22px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: sticky;
+            top: 20px;
+        }
+        .checklist-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            color: var(--text);
+            text-align: center;
+            margin-bottom: 2px;
+            letter-spacing: -0.2px;
+        }
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: #fafaf8;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all var(--transition);
+            border: 1.5px solid transparent;
+            cursor: default;
+        }
+        .check-item .indicator {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+        .check-item.pending .indicator { background: #f0ece6; color: #b0a89c; border: 2px solid #d5cec4; }
+        .check-item.met .indicator { background: #d4f5e6; color: var(--success); border: 2px solid var(--success); }
+        .check-item.unmet .indicator { background: #fde8e8; color: var(--danger); border: 2px solid var(--danger); }
+        .check-item.met { border-color: #c3e6d3; background: #f9fdfb; }
+        .check-item.unmet { border-color: #f5c6c6; background: #fefafa; }
+        .check-item .check-label { flex: 1; }
+        .check-item .check-detail { font-size: 0.75rem; color: var(--text-light); font-weight: 400; }
+
+        /* Submission Overlay */
+        .submission-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            align-items: center; justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        .submission-overlay.active { display: flex; }
+        .submission-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: fadeSlideIn 0.5s ease;
+        }
+        .submission-card .check-icon { font-size: 4rem; margin-bottom: 16px; }
+        .submission-card h2 { font-family: var(--font-heading); color: var(--success); margin-bottom: 10px; }
+        .submission-card p { color: var(--text-light); margin-bottom: 20px; }
+        .submission-card .btn { margin: 6px; }
+
+        @media (max-width: 750px) {
+            .main-layout { flex-direction: column; }
+            .checklist-card { position: static; flex-direction: row; flex-wrap: wrap; gap: 8px; padding: 16px; }
+            .checklist-card h3 { width: 100%; text-align: center; }
+            .check-item { flex: 1 1 130px; min-width: 120px; justify-content: center; font-size: 0.78rem; padding: 8px 10px; }
+            .writing-card textarea.paragraph-area { min-height: 200px; }
+            .tree { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <!-- Header -->
+        <div class="header-card">
+            <div class="icon-row">✍️📝</div>
+            <h1>Writing Practice</h1>
+            <div class="topic-tag">Topic: "Someone I Admire"</div>
+        </div>
+
+        <!-- 🧠 Mind Map Planner (Collapsible) -->
+        <div class="mindmap-card" id="mindmapCard">
+            <div class="mindmap-header" id="mindmapToggle">
+                <span class="arrow">▼</span> 🧠 Mind Map Planner
+            </div>
+            <div class="mindmap-body" id="mindmapBody">
+                <div class="tree" id="treeContainer">
+                    <!-- Tree is built by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Writing Area -->
+            <div class="writing-card">
+                <label for="studentName">👤 Your Name (optional)</label>
+                <div class="student-name-row">
+                    <input type="text" id="studentName" placeholder="Enter your name (e.g., Alex)" maxlength="50">
+                </div>
+
+                <label for="outlineInput">🗂️ Outline Your Ideas</label>
+                <textarea id="outlineInput" class="outline-area" placeholder="Use the mind map above, then jot down key points, adjectives, or transitions here..."></textarea>
+
+                <label for="essayInput">📄 Your Paragraph</label>
+                <textarea id="essayInput" class="paragraph-area" placeholder="Write your 8–10 sentence paragraph here..."></textarea>
+
+                <div class="word-count-row">
+                    <span>📏 Sentences: <strong class="count-num" id="sentenceCount">0</strong> / 8–10</span>
+                    <span>📝 Words: <strong class="count-num" id="wordCount">0</strong></span>
+                    <span>🌟 Adjectives: <strong class="count-num" id="adjCount">0</strong> / 5+</span>
+                    <span>🔗 Transitions: <strong class="count-num" id="transCount">0</strong></span>
+                </div>
+
+                <div class="highlight-bar" id="highlightBar">
+                    <span style="color:#a0968a; font-size:0.8rem;">Detected elements will appear here...</span>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-primary" id="checkBtn">✅ Check Requirements</button>
+                    <button class="btn btn-outline" id="highlightBtn">🔍 Highlight</button>
+                    <button class="btn btn-success" id="submitBtn">📤 Submit</button>
+                    <button class="btn btn-ghost" id="resetBtn">🔄 Reset</button>
+                </div>
+
+                <div class="feedback-toast" id="feedbackToast"></div>
+            </div>
+
+            <!-- Checklist Sidebar -->
+            <div class="checklist-card" id="checklistCard">
+                <h3>📋 Requirements</h3>
+                <div class="check-item pending" id="checkSentences">
+                    <span class="indicator">?</span><span class="check-label">8–10 Sentences</span><span class="check-detail" id="checkSentencesDetail">0 found</span>
+                </div>
+                <div class="check-item pending" id="checkTopic">
+                    <span class="indicator">?</span><span class="check-label">Topic Sentence</span><span class="check-detail" id="checkTopicDetail">—</span>
+                </div>
+                <div class="check-item pending" id="checkAdjectives">
+                    <span class="indicator">?</span><span class="check-label">5+ Adjectives</span><span class="check-detail" id="checkAdjectivesDetail">0 found</span>
+                </div>
+                <div class="check-item pending" id="checkTransitions">
+                    <span class="indicator">?</span><span class="check-label">Transition Words</span><span class="check-detail" id="checkTransitionsDetail">0 found</span>
+                </div>
+                <div class="check-item pending" id="checkConcluding">
+                    <span class="indicator">?</span><span class="check-label">Concluding Sentence</span><span class="check-detail" id="checkConcludingDetail">—</span>
+                </div>
+                <div class="check-item pending" id="checkOverall">
+                    <span class="indicator">?</span><span class="check-label"><strong>Overall: All Met?</strong></span><span class="check-detail" id="checkOverallDetail">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submission Overlay -->
+    <div class="submission-overlay" id="submissionOverlay">
+        <div class="submission-card">
+            <div class="check-icon">✅</div>
+            <h2>Task Submitted!</h2>
+            <p>Your writing practice has been saved.<br>Great work on "Someone I Admire"!</p>
+            <button class="btn btn-outline" id="closeOverlayBtn">👀 Review My Work</button>
+            <button class="btn btn-primary" id="newEntryBtn">📝 Start New Entry</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ══════════════════════════════════════════════════
+            // GOOGLE SHEETS CONFIGURATION (replace with your URL)
+            // ══════════════════════════════════════════════════
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwT0V7BRizu0YCeTx5BmI6Acy3eouVv-Qt2I4NN5cXV4VZhprg99Y7jAfZxWJ0i42Nr/exec';
+
+            // ─── Mind Map Builder ───
+            const treeContainer = document.getElementById('treeContainer');
+            const mindmapCard = document.getElementById('mindmapCard');
+            const mindmapToggle = document.getElementById('mindmapToggle');
+
+            // Toggle collapse
+            mindmapToggle.addEventListener('click', () => {
+                mindmapCard.classList.toggle('collapsed');
+            });
+
+            // Tree data structure
+            let treeData = {
+                id: 'root',
+                text: 'Someone I Admire',
+                children: [
+                    { id: 'c1', text: 'Person\'s Name', children: [
+                        { id: 'c1a', text: 'Relationship' },
+                        { id: 'c1b', text: 'Why admire' }
+                    ]},
+                    { id: 'c2', text: 'Traits / Adjectives', children: [
+                        { id: 'c2a', text: 'kind' },
+                        { id: 'c2b', text: 'brave' },
+                        { id: 'c2c', text: 'wise' }
+                    ]},
+                    { id: 'c3', text: 'Examples / Stories', children: [] },
+                    { id: 'c4', text: 'Transition Words', children: [
+                        { id: 'c4a', text: 'first of all' },
+                        { id: 'c4b', text: 'furthermore' }
+                    ]},
+                    { id: 'c5', text: 'Concluding Thought', children: [] }
+                ]
+            };
+
+            function buildTreeHTML(node) {
+                let html = '<li>';
+                html += `<div class="tree-node" data-id="${node.id}">`;
+                html += `<input type="text" value="${escapeHtml(node.text)}" data-id="${node.id}" class="node-text">`;
+                html += `<div class="node-actions">`;
+                html += `<button class="node-btn add-child-btn" data-id="${node.id}">Add</button>`;
+                if (node.id !== 'root') {
+                    html += `<button class="node-btn remove-btn" data-id="${node.id}">✕</button>`;
+                }
+                html += `</div></div>`;
+                if (node.children && node.children.length > 0) {
+                    html += '<ul>';
+                    node.children.forEach(child => {
+                        html += buildTreeHTML(child);
+                    });
+                    html += '</ul>';
+                }
+                html += '</li>';
+                return html;
+            }
+
+            function escapeHtml(text) {
+                return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            }
+
+            function renderTree() {
+                treeContainer.innerHTML = '<ul>' + buildTreeHTML(treeData) + '</ul>';
+                attachTreeEvents();
+            }
+
+            function attachTreeEvents() {
+                // Add child
+                document.querySelectorAll('.add-child-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const parentId = btn.dataset.id;
+                        const newNodeId = 'node_' + Date.now();
+                        const newNode = { id: newNodeId, text: 'new idea', children: [] };
+                        addChildToNode(treeData, parentId, newNode);
+                        renderTree();
+                        // Focus the new input
+                        setTimeout(() => {
+                            const newInput = document.querySelector(`input[data-id="${newNodeId}"]`);
+                            if (newInput) newInput.focus();
+                        }, 50);
+                    });
+                });
+
+                // Remove node
+                document.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const nodeId = btn.dataset.id;
+                        if (nodeId === 'root') return;
+                        if (confirm('Delete this idea?')) {
+                            removeNode(treeData, nodeId);
+                            renderTree();
+                        }
+                    });
+                });
+
+                // Edit text
+                document.querySelectorAll('.node-text').forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        const nodeId = input.dataset.id;
+                        updateNodeText(treeData, nodeId, input.value);
+                    });
+                });
+            }
+
+            function addChildToNode(node, parentId, newChild) {
+                if (node.id === parentId) {
+                    node.children = node.children || [];
+                    node.children.push(newChild);
+                    return true;
+                }
+                if (node.children) {
+                    for (let child of node.children) {
+                        if (addChildToNode(child, parentId, newChild)) return true;
+                    }
+                }
+                return false;
+            }
+
+            function removeNode(node, targetId) {
+                if (node.children) {
+                    node.children = node.children.filter(child => child.id !== targetId);
+                    for (let child of node.children) {
+                        removeNode(child, targetId);
+                    }
+                }
+            }
+
+            function updateNodeText(node, targetId, newText) {
+                if (node.id === targetId) {
+                    node.text = newText;
+                    return true;
+                }
+                if (node.children) {
+                    for (let child of node.children) {
+                        if (updateNodeText(child, targetId, newText)) return true;
+                    }
+                }
+                return false;
+            }
+
+            // Initial render
+            renderTree();
+
+            // ─── Paragraph analysis (unchanged) ───
+            const studentNameInput = document.getElementById('studentName');
+            const outlineInput = document.getElementById('outlineInput');
+            const essayInput = document.getElementById('essayInput');
+            const sentenceCountEl = document.getElementById('sentenceCount');
+            const wordCountEl = document.getElementById('wordCount');
+            const adjCountEl = document.getElementById('adjCount');
+            const transCountEl = document.getElementById('transCount');
+            const highlightBar = document.getElementById('highlightBar');
+            const feedbackToast = document.getElementById('feedbackToast');
+            const checkBtn = document.getElementById('checkBtn');
+            const highlightBtn = document.getElementById('highlightBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const submissionOverlay = document.getElementById('submissionOverlay');
+            const closeOverlayBtn = document.getElementById('closeOverlayBtn');
+            const newEntryBtn = document.getElementById('newEntryBtn');
+
+            const checkSentences = document.getElementById('checkSentences');
+            const checkTopic = document.getElementById('checkTopic');
+            const checkAdjectives = document.getElementById('checkAdjectives');
+            const checkTransitions = document.getElementById('checkTransitions');
+            const checkConcluding = document.getElementById('checkConcluding');
+            const checkOverall = document.getElementById('checkOverall');
+            const checkSentencesDetail = document.getElementById('checkSentencesDetail');
+            const checkTopicDetail = document.getElementById('checkTopicDetail');
+            const checkAdjectivesDetail = document.getElementById('checkAdjectivesDetail');
+            const checkTransitionsDetail = document.getElementById('checkTransitionsDetail');
+            const checkConcludingDetail = document.getElementById('checkConcludingDetail');
+            const checkOverallDetail = document.getElementById('checkOverallDetail');
+
+            const descriptiveAdjectives = new Set([
+                'beautiful','handsome','gorgeous','stunning','elegant','radiant','striking','majestic','graceful',
+                'charming','attractive','lovely','kind','compassionate','generous','thoughtful','caring','selfless',
+                'benevolent','brave','courageous','bold','fearless','valiant','heroic','honest','sincere','genuine',
+                'trustworthy','loyal','faithful','dependable','humble','modest','gracious','polite','respectful',
+                'courteous','intelligent','brilliant','wise','clever','insightful','sharp','knowledgeable','creative',
+                'innovative','imaginative','artistic','inventive','resourceful','determined','resilient','persistent',
+                'tenacious','hardworking','diligent','optimistic','cheerful','joyful','enthusiastic','vibrant','lively',
+                'patient','calm','serene','gentle','tender','peaceful','passionate','zealous','dedicated','devoted',
+                'committed','driven','empathetic','sensitive','understanding','sympathetic','warm','confident',
+                'assertive','strong','powerful','influential','charismatic','inspiring','motivational','uplifting',
+                'encouraging','remarkable','extraordinary','exceptional','outstanding','superb','magnificent','wonderful',
+                'fantastic','amazing','incredible','phenomenal','loving','affectionate','nurturing','supportive',
+                'protective','forgiving','merciful','tolerant','accepting','adventurous','curious','inquisitive',
+                'meticulous','thorough','precise','resilient','steadfast','noble','honorable','virtuous','radiant',
+                'effervescent','spirited','soulful','profound','witty','humorous','funny','poised','composed',
+                'self-assured','talented','skilled','gifted','accomplished','sophisticated','refined','cultured',
+            ]);
+            const transitionWords = new Set([
+                'furthermore','moreover','additionally','in addition','also','besides','not only','but also','as well as',
+                'likewise','similarly','however','nevertheless','nonetheless','on the other hand','in contrast',
+                'conversely','yet','still','although','even though','though','whereas','while','despite','in spite of',
+                'regardless','therefore','thus','consequently','as a result','accordingly','hence','so','because','since',
+                'due to','owing to','for this reason','thereby','first','second','third','firstly','secondly','thirdly',
+                'next','then','finally','lastly','meanwhile','subsequently','afterward','before','earlier','later',
+                'eventually','ultimately','in the meantime','at the same time','previously','initially','to begin with',
+                'in conclusion','indeed','in fact','certainly','undoubtedly','without a doubt','clearly','obviously',
+                'notably','especially','particularly','specifically','in other words','to clarify','that is',
+                'for example','for instance','such as','namely','to illustrate','in particular','in summary',
+                'to summarize','in short','in brief','overall','all in all','on the whole','to conclude',
+                'in essence','in closing','similarly','in the same way','just as',
+            ]);
+
+            function getSentences(text) {
+                if (!text.trim()) return [];
+                const raw = text.match(/[^.!?]+[.!?]+[\s]*/g);
+                return raw ? raw.map(s => s.trim()).filter(s => s.length > 0) : [text.trim()];
+            }
+            function getWords(text) { return text.match(/[a-zA-Z]+(?:'[a-zA-Z]+)?/g) || []; }
+            function findAdjectives(text) {
+                const words = getWords(text);
+                const found = []; const seen = new Set();
+                words.forEach(word => {
+                    const lower = word.toLowerCase();
+                    if (descriptiveAdjectives.has(lower) && !seen.has(lower)) { found.push(word); seen.add(lower); }
+                });
+                return found;
+            }
+            function findTransitions(text) {
+                const lowerText = text.toLowerCase();
+                const found = []; const seen = new Set();
+                transitionWords.forEach(tw => {
+                    const regex = new RegExp('\\b' + tw.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\b', 'gi');
+                    if (regex.test(lowerText) && !seen.has(tw)) { found.push(tw); seen.add(tw); }
+                });
+                return found;
+            }
+            function isTopicSentence(sentence, isFirst) {
+                if (!isFirst) return false;
+                const lower = sentence.toLowerCase();
+                const ind = ['admire','admiration','look up to','respect','inspire','role model','hero','idol','someone i','person i'];
+                return ind.some(i => lower.includes(i));
+            }
+            function isConcludingSentence(sentence, isLast) {
+                if (!isLast) return false;
+                const lower = sentence.toLowerCase();
+                const starters = ['in conclusion','to sum up','in summary','ultimately','all in all','overall','finally','thus','therefore'];
+                const ind = ['i will always','forever','always admire','truly admire','taught me','learned from','grateful','shaped who i am'];
+                return starters.some(s => lower.startsWith(s)) || ind.some(i => lower.includes(i));
+            }
+
+            function updateAllStats() {
+                const text = essayInput.value;
+                const sentences = getSentences(text);
+                const words = getWords(text);
+                const adjectivesFound = findAdjectives(text);
+                const transitionsFound = findTransitions(text);
+                const sentenceCount = sentences.length;
+                const wordCount = words.length;
+                const adjCount = adjectivesFound.length;
+                const transCount = transitionsFound.length;
+
+                sentenceCountEl.textContent = sentenceCount;
+                wordCountEl.textContent = wordCount;
+                adjCountEl.textContent = adjCount;
+                transCountEl.textContent = transCount;
+
+                const firstSentence = sentences[0] || '';
+                const lastSentence = sentences[sentences.length-1] || '';
+                const hasTopic = isTopicSentence(firstSentence, true);
+                const hasConcluding = isConcludingSentence(lastSentence, sentences.length > 0);
+                const sentencesMet = sentenceCount >= 8 && sentenceCount <= 10;
+                const topicMet = hasTopic;
+                const adjectivesMet = adjCount >= 5;
+                const transitionsMet = transCount >= 1;
+                const concludingMet = hasConcluding;
+                const allMet = sentencesMet && topicMet && adjectivesMet && transitionsMet && concludingMet;
+
+                updateCheckItem(checkSentences, checkSentencesDetail, sentencesMet, `${sentenceCount} found`, sentenceCount);
+                updateCheckItem(checkTopic, checkTopicDetail, topicMet, topicMet ? 'Detected ✓' : 'Not detected');
+                updateCheckItem(checkAdjectives, checkAdjectivesDetail, adjectivesMet, `${adjCount} found`, adjCount);
+                updateCheckItem(checkTransitions, checkTransitionsDetail, transitionsMet, `${transCount} found`, transCount);
+                updateCheckItem(checkConcluding, checkConcludingDetail, concludingMet, concludingMet ? 'Detected ✓' : 'Not detected');
+                updateCheckItem(checkOverall, checkOverallDetail, allMet, allMet ? '🎉 All requirements met!' : 'Some missing');
+
+                updateHighlightBar(adjectivesFound, transitionsFound, hasTopic, hasConcluding, sentences);
+                if (allMet) showFeedback('🎉 All requirements met!', 'success');
+                else if (sentenceCount === 0) hideFeedback();
+                else if (sentenceCount < 8) showFeedback(`📝 ${sentenceCount} sentence(s). Need 8–10.`, 'info');
+                else if (sentenceCount > 10) showFeedback(`⚠️ ${sentenceCount} sentences. Keep 8–10.`, 'info');
+                else { const missing = []; if (!topicMet) missing.push('topic sentence'); if (!adjectivesMet) missing.push(`${5-adjCount} adjective(s)`); if (!transitionsMet) missing.push('transition word'); if (!concludingMet) missing.push('concluding sentence'); if (missing.length) showFeedback('💡 Work on: '+missing.join(', '), 'info'); else hideFeedback(); }
+                return { sentencesMet, topicMet, adjectivesMet, transitionsMet, concludingMet, allMet };
+            }
+
+            function updateCheckItem(el, detailEl, met, text, countVal) {
+                el.classList.remove('pending','met','unmet');
+                if (met) { el.classList.add('met'); el.querySelector('.indicator').textContent = '✓'; }
+                else if (countVal !== undefined && countVal > 0) { el.classList.add('unmet'); el.querySelector('.indicator').textContent = '!'; }
+                else { el.classList.add('pending'); el.querySelector('.indicator').textContent = '?'; }
+                detailEl.textContent = text;
+            }
+
+            function updateHighlightBar(adjectives, transitions, hasTopic, hasConcluding, sentences) {
+                let html = '';
+                if (hasTopic && sentences.length) html += `<span class="tag topic-sentence">📌 Topic: "${truncate(sentences[0], 45)}"</span>`;
+                if (adjectives.length) html += `<span class="tag adjective">🌟 Adjectives: ${adjectives.slice(0,6).join(', ')}${adjectives.length>6 ? ' +more' : ''}</span>`;
+                if (transitions.length) html += `<span class="tag transition">🔗 Transitions: ${transitions.slice(0,4).join(', ')}${transitions.length>4 ? ' +more' : ''}</span>`;
+                if (hasConcluding && sentences.length) html += `<span class="tag concluding">🏁 Concluding: "${truncate(sentences[sentences.length-1], 45)}"</span>`;
+                highlightBar.innerHTML = html || '<span style="color:#a0968a;">No elements detected yet.</span>';
+            }
+
+            function truncate(s, max) { return s.length <= max ? s : s.substring(0, max)+'…'; }
+            function showFeedback(msg, type) {
+                feedbackToast.textContent = msg; feedbackToast.className = 'feedback-toast '+type;
+                clearTimeout(feedbackToast._timeout);
+                feedbackToast._timeout = setTimeout(() => { feedbackToast.style.display = 'none'; }, 5000);
+            }
+            function hideFeedback() { feedbackToast.style.display = 'none'; clearTimeout(feedbackToast._timeout); }
+
+            // Submit to Google Sheets
+            async function submitToGoogleSheets() {
+                const studentName = studentNameInput.value.trim() || 'Anonymous';
+                const outline = outlineInput.value.trim();
+                const paragraph = essayInput.value.trim();
+                if (!paragraph) { showFeedback('❌ Please write your paragraph before submitting.', 'error'); return; }
+                if (GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                    showFeedback('⚠️ Google Sheets not set up. Replace the placeholder URL.', 'error');
+                    return;
+                }
+                submitBtn.disabled = true; submitBtn.textContent = '⏳ Submitting...';
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST', mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ studentName, outline, paragraph, timestamp: new Date().toISOString() })
+                    });
+                    submissionOverlay.classList.add('active');
+                    hideFeedback();
+                } catch (err) {
+                    showFeedback('❌ Submission failed. Check connection.', 'error');
+                } finally {
+                    submitBtn.disabled = false; submitBtn.textContent = '📤 Submit';
+                }
+            }
+
+            essayInput.addEventListener('input', updateAllStats);
+            checkBtn.addEventListener('click', () => {
+                const stats = updateAllStats();
+                if (stats.allMet) showFeedback('🎉 All requirements met! Ready to submit.', 'success');
+                else { const missing = []; if (!stats.sentencesMet) missing.push('8-10 sentences'); if (!stats.topicMet) missing.push('topic sentence'); if (!stats.adjectivesMet) missing.push('5+ adjectives'); if (!stats.transitionsMet) missing.push('transition word'); if (!stats.concludingMet) missing.push('concluding sentence'); showFeedback('📋 Still needed: '+missing.join(', '), 'info'); }
+            });
+            highlightBtn.addEventListener('click', () => { updateAllStats(); const stats = updateAllStats(); showFeedback(stats.allMet ? '✅ All requirements met!' : '🔍 Review the highlight bar.', stats.allMet ? 'success' : 'info'); });
+            submitBtn.addEventListener('click', submitToGoogleSheets);
+            resetBtn.addEventListener('click', () => {
+                if (essayInput.value.trim() || outlineInput.value.trim()) { if (!confirm('Clear all writing and outline?')) return; }
+                studentNameInput.value = ''; outlineInput.value = ''; essayInput.value = '';
+                updateAllStats(); hideFeedback();
+                highlightBar.innerHTML = '<span style="color:#a0968a;">Detected elements will appear here...</span>';
+                document.querySelectorAll('.check-item').forEach(item => { item.classList.remove('met','unmet'); item.classList.add('pending'); item.querySelector('.indicator').textContent = '?'; });
+                checkSentencesDetail.textContent = '0 found'; checkTopicDetail.textContent = '—'; checkAdjectivesDetail.textContent = '0 found'; checkTransitionsDetail.textContent = '0 found'; checkConcludingDetail.textContent = '—'; checkOverallDetail.textContent = '—';
+                essayInput.focus();
+            });
+            closeOverlayBtn.addEventListener('click', () => submissionOverlay.classList.remove('active'));
+            newEntryBtn.addEventListener('click', () => {
+                submissionOverlay.classList.remove('active');
+                studentNameInput.value = ''; outlineInput.value = ''; essayInput.value = '';
+                updateAllStats(); hideFeedback();
+                highlightBar.innerHTML = '<span style="color:#a0968a;">Detected elements will appear here...</span>';
+                document.querySelectorAll('.check-item').forEach(item => { item.classList.remove('met','unmet'); item.classList.add('pending'); item.querySelector('.indicator').textContent = '?'; });
+                checkSentencesDetail.textContent = '0 found'; checkTopicDetail.textContent = '—'; checkAdjectivesDetail.textContent = '0 found'; checkTransitionsDetail.textContent = '0 found'; checkConcludingDetail.textContent = '—'; checkOverallDetail.textContent = '—';
+                essayInput.focus();
+            });
+            essayInput.addEventListener('keydown', (e) => { if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); updateAllStats(); highlightBtn.click(); } });
+
+            updateAllStats();
+            essayInput.focus();
+        })();
+    </script>
+</body>
+</html>
